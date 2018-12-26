@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#--------------------
+typeset PNGFILE=${1}
+typeset ICOFILE=${2:-"favicon"}
+#--------------------
+function perror() {
+	echo -en "\n\t"
+	echo -en "$(tput bold && tput setaf 1)"
+	echo -en "Error:"
+	echo -en "$(tput setaf 168)"
+	echo -en "${1} !"
+	echo -en "$(tput sgr0)\n"
+	exit 404
+}
+function printUsage() {
+	echo -en "\n$(tput smul)"
+	echo -en "Usage:\t\t\t\t\t"
+	echo -en "$(tput sgr0)"
+	echo -en "\n\t$(tput bold && tput setaf 42)"
+	echo -en "$(basename ${0})\t"
+	echo -en "$(tput setaf 198)"
+	echo -en "File[.png]\t"
+	echo -en "$(tput setaf 242)"
+	echo -en "[outputname]\n"
+	echo -en "$(tput sgr0)"
+	echo -en "$(tput sitm && tput setaf 33)"
+	echo -en "\n\tIf second argument is omitted, 'favicon' is used"
+	echo -en "\n\tfor the .ico - filename."
+	echo -en "\n\tA file-extension of type '.png' is not needed, but"
+	echo -en "\n\tMIME-type of first arguments file needs to be 'image/png'.\n\n"
+	echo -en "$(tput sgr0)"
+}
+function convertToFavicon() {
+	if [ -f "$(find /bin /usr/bin /usr/local/bin -name 'convert' -type f)" ]; then
+		convert \
+			"${PNGFILE}" \
+			-define icon:auto-resize=96,64,48,32,16 \
+			"${ICOFILE:-favicon}.ico" \
+			|| perror "Failed to resize ${PNGFILE} to ${size}x${size} ..."
+		echo -en "$(tput bold && tput setaf 42)\n"
+		echo -en "${ICOFILE:-'favicon'}.ico finished \u2757\n"
+		echo -en "$(tput sgr0)"
+		exit ${?}
+	else
+		perror "ImageMagick 'convert'-executable not found ..."
+	fi
+	return ${?}
+}
+if [ ${#} -lt 1 ] || [ ${#} -gt 2 ]; then
+	printUsage
+	perror "Either not enough or too many arguments (see Usage)..."
+elif [ ${#} -eq 1 -a -f ${PNGFILE} ] || [ ${#} -eq 2 -a -f ${PNGFILE} ]; then
+	if [ "$(file --mime-type ${PNGFILE} | cut -d' ' -f2)" != "image/png" ]; then
+		printUsage
+		perror "'${PNGFILE}' is no .png-File referring to its MIME-type ..."
+	fi
+	convertToFavicon
+else
+
+	printUsage
+	perror "File '${PNGFILE}' doesn't exist ..."
+fi
+exit ${?}

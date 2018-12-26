@@ -1,0 +1,11 @@
+#!/usr/bin/zsh
+if [[ ! -z "$@" ]]; then
+	for each in "$@"; do
+		test ! -z "$each" && test $(file --mime-type "$each" | grep -c --only-matching "png") -eq 1 && \
+		convert "$each" -alpha on "$(basename -s .png $each).svg"
+	done && \
+	exit 0
+else
+	echo -e "Usage: $0 [.PNG] \t creates a .SVG with the same name" && \
+	exit 0
+fi
