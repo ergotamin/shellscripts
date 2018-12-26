@@ -1,0 +1,69 @@
+#!/bin/bash
+: -+- utf8 -+- shellscript -+- '
+: -----------------------------
+:  (c) 2018 MIT License
+:  Marcel Bobolz
+:  <ergotamin.source@gmail.com>
+: -----------------------------'
+
+# global arrays
+typeset -a -i N
+typeset -a F
+
+# conditional option-iteration
+for arg in $@; do
+	shift
+	if [[ ${arg} =~ ^(--help|-h)$ ]] || [[ -z ${arg} ]]; then
+		echo '
+--------------------------------------------------------------------------
+Examples:
+1) line NUMBER FILE
+2) line (-l|--lines NUMBER(,NUMBER...)) FILE
+3) line (-l|--lines NUMBER(,NUMBER...)) (-f|--files FILE(,FILE...))
+
+Descriptions:
+1) Get line NUMBER of file FILE.
+2) Get lines NUMBER,NUMBER... of file FILE.
+3) Get lines NUMBER,NUMBER... of files FILE,FILE.
+--------------------------------------------------------------------------
+							(c) 2018 ergotamin'
+		exit ${?}
+	elif [[ ${arg} =~ ^(--lines|-l)$ ]]; then
+		IFS=','
+		N=($1)
+		IFS=' '
+		shift
+	elif [[ ${arg} =~ ^(--files|-f)$ ]]; then
+		IFS=','
+		F=($1)
+		IFS=' '
+		shift
+	elif [[ ${arg} =~ ^[0-9]+$ ]]; then
+		N=(${arg})
+	elif [[ -e ${arg} ]]; then
+		if [[ -s ${arg} ]]; then
+			F=(${arg})
+			break
+		else
+			echo "ENOSIZE ${arg} filesize is (null)."
+			break
+		fi
+	fi
+done
+
+# command execution or error
+if [[ -n ${F[0]} ]] && [[ ${N[0]} -ne 0 ]]; then
+	for file in ${F[*]}; do
+		for number in ${N[*]}; do
+			sed -un ${number}p ${file}
+		done
+	done
+else
+	echo "invalid parameter(s). try '--help'."
+fi
+
+# cleanup
+unset F N
+
+# exit
+exit $?
