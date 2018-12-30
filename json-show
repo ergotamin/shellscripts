@@ -28,4 +28,11 @@ function json::show() {
 
 if [[ $# -eq 2 ]] && [[ -e $2 ]]; then
 	json::show $1 $2
+else
+	echo '
+  Usage:
+    json-show [KEY] [JSONFILE]
+    Look for the value(s) of KEY in JSONFILE.
+  '
 fi
+exit $?
