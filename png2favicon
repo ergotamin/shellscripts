@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #--------------------
 typeset PNGFILE=${1}
 typeset ICOFILE=${2:-"favicon"}
