@@ -4,6 +4,7 @@
 :  Marcel Bobolz
 :  <ergotamin.source@gmail.com>
 : ------------------------ :'
+
 function dumpzero() {
 	typeset devname="${1}"
 	typeset blocks=$(($(LC_ALL=C fdisk -l --bytes ${devname} | head -1 | cut -d ' ' -f 5) / $((1024 * 1024))))
